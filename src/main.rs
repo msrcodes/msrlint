@@ -1,4 +1,4 @@
-use clap::{Parser, ArgEnum};
+use clap::{ArgEnum, Parser};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
 enum FixType {
@@ -11,7 +11,7 @@ enum FixType {
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
 enum CacheStrategy {
     Metadata,
-    Content
+    Content,
 }
 
 /// Find and fix problems in your JavaScript code... but faster.
@@ -108,11 +108,11 @@ struct Cli {
 
     // ~~~ Output
     /// [NYI] Specify file to write report to
-    #[clap(long, short='o')]
+    #[clap(long, short = 'o')]
     output_file: Option<String>,
 
     /// [NYI] Use a specific output format
-    #[clap(long, short='f')]
+    #[clap(long, short = 'f')]
     format: Option<String>,
 
     /// [NYI] Force enabling of color
@@ -146,7 +146,6 @@ struct Cli {
     cache_strategy: Option<CacheStrategy>,
 
     // ~~~ Miscellaneous
-
     /// [NYI] Run config initialization wizard
     #[clap(long)]
     init: bool,
@@ -166,7 +165,7 @@ struct Cli {
     /// [NYI] Output debugging information
     #[clap(long)]
     debug: bool,
-    
+
     /// [NYI] Output the version number
     #[clap(short = 'v', long)]
     version: bool,
