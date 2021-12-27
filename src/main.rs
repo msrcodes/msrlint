@@ -1,4 +1,4 @@
-use clap::StructOpt;
+use clap::Parser;
 
 use crate::cli::Cli;
 
