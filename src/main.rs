@@ -5,7 +5,7 @@ use crate::cli::Cli;
 mod cli;
 
 fn main() {
-    let args = Cli::parse();
+    let cli = Cli::parse();
 
-    println!("Hello {}!", args.no_color)
+    println!("Using input {:?}", cli.files);
 }

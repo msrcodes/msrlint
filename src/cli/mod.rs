@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 pub use clap::{ArgEnum, Parser};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
@@ -173,4 +175,8 @@ pub struct Cli {
     /// [NYI] Print the configuration for the given file
     #[clap(long)]
     pub print_config: Option<String>,
+
+    /// File(s) to lint
+    #[clap(required = true, parse(from_os_str))]
+    pub files: Vec<PathBuf>,
 }
