@@ -1,0 +1,8 @@
+{
+  "name": "msrlint-test-environment",
+  "version": "1.0.0",
+  "description": "A testing environment for msrlint",
+  "main": "src/index.js",
+  "license": "MIT",
+  "private": true
+}
