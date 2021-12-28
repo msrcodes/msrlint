@@ -18,13 +18,17 @@ pub fn get_all_files_to_lint(paths: Vec<PathBuf>) -> HashSet<PathBuf> {
                 Ok(dir_entry) => {
                     let path_buf = dir_entry.path().to_path_buf();
 
-                    // We can't lint directories, so only lint files
                     if !path_buf.is_dir() {
-                        // If extension is valid, use it
-                        if let Some(extension) = path_buf.extension() {
-                            if extension == "js" || extension == "jsx" {
-                                to_lint.insert(path_buf);
+                        match path_buf.extension() {
+                            // If a file has an extension, check it
+                            Some(extension) => {
+                                // If extension is valid, use it
+                                if extension == "js" || extension == "jsx" {
+                                    to_lint.insert(path_buf);
+                                }
                             }
+                            // If a file does not have an extension, ignore it
+                            None => {}
                         }
                     }
                 }
@@ -33,7 +37,7 @@ pub fn get_all_files_to_lint(paths: Vec<PathBuf>) -> HashSet<PathBuf> {
         }
     }
 
-    to_lint
+    return to_lint;
 }
 
 #[cfg(test)]
