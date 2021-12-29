@@ -33,15 +33,15 @@ pub struct Cli {
 
     /// [NYI] Specify environments
     #[clap(long)]
-    pub env: Option<String>,
+    pub env: Option<Vec<String>>,
 
     /// [NYI] Specify JavaScript file extensions
     #[clap(long)]
-    pub ext: Option<String>,
+    pub ext: Option<Vec<String>>,
 
     /// [NYI] Define global variables
     #[clap(long)]
-    pub global: Option<String>,
+    pub global: Option<Vec<String>>,
 
     /// [NYI] Specify the parser to be used
     #[clap(long)]
@@ -58,7 +58,7 @@ pub struct Cli {
     // ~~~ Specifying rules and plugins
     /// [NYI] Specify plugins
     #[clap(long)]
-    pub plugin: Option<String>,
+    pub plugin: Option<Vec<String>>,
 
     /// [NYI] Specify rules
     #[clap(long)]
@@ -75,7 +75,7 @@ pub struct Cli {
 
     /// [NYI] Specify the types of fixes to apply
     #[clap(arg_enum, long)]
-    pub fix_type: Option<FixType>,
+    pub fix_type: Option<Vec<FixType>>,
 
     // ~~~ Ignoring files
     /// [NYI] Specify path of ignore file
@@ -88,7 +88,7 @@ pub struct Cli {
 
     /// [NYI] Pattern of files to ignore (in addition to those in .eslintignore)
     #[clap(long)]
-    pub ignore_pattern: Option<String>,
+    pub ignore_pattern: Option<Vec<String>>,
 
     // ~~~ Using stdin
     /// [NYI] Lint code provided on <STDIN>
