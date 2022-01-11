@@ -1,14 +1,19 @@
 use std::path::Path;
 
+mod rules;
+
 use swc_common::{
     self,
     errors::{ColorConfig, Handler},
+    input::SourceFileInput,
     sync::Lrc,
     SourceMap,
 };
 
-use swc_ecmascript::parser::{lexer::Lexer, Parser, StringInput};
+use swc_ecmascript::parser::{lexer::Lexer, Parser};
 use swc_ecmascript::{ast::Module, parser::Syntax};
+
+use rules::get_all_rules;
 
 fn parse_module_file(path: &Path) -> Module {
     let cm: Lrc<SourceMap> = Default::default();
@@ -22,7 +27,7 @@ fn parse_module_file(path: &Path) -> Module {
         Syntax::Es(Default::default()),
         // EsVersion defaults to es5
         Default::default(),
-        StringInput::from(&*fm),
+        SourceFileInput::from(&*fm),
         None,
     );
 
@@ -45,6 +50,8 @@ pub fn lint_file(path: &Path) {
     // parse file into AST
     let module = parse_module_file(path);
 
-    // TODO: apply rules
-    println!("{:?}", module);
+    // apply all rules
+    for mut rule in get_all_rules() {
+        rule.lint_module(&module);
+    }
 }
