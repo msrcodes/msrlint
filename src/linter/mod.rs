@@ -7,7 +7,7 @@ use swc_common::{
     errors::{ColorConfig, Handler},
     input::SourceFileInput,
     sync::Lrc,
-    SourceMap,
+    SourceFile, SourceMap,
 };
 
 use swc_ecmascript::parser::{lexer::Lexer, Parser};
@@ -15,19 +15,23 @@ use swc_ecmascript::{ast::Module, parser::Syntax};
 
 use rules::get_all_rules;
 
-fn parse_module_file(path: &Path) -> Module {
+pub struct ParsedModule {
+    pub module: Module,
+    pub source_file: Lrc<SourceFile>,
+}
+
+fn parse_module_file(path: &Path) -> ParsedModule {
     let cm: Lrc<SourceMap> = Default::default();
     let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
-    // Real usage
-    let fm = cm.load_file(path).expect("failed to load test.js");
+    let source_file = cm.load_file(path).expect("failed to load test.js");
 
     let lexer = Lexer::new(
         // We want to parse ecmascript
         Syntax::Es(Default::default()),
         // EsVersion defaults to es5
         Default::default(),
-        SourceFileInput::from(&*fm),
+        SourceFileInput::from(&*source_file),
         None,
     );
 
@@ -37,21 +41,26 @@ fn parse_module_file(path: &Path) -> Module {
         e.into_diagnostic(&handler).emit();
     }
 
-    parser
+    let module = parser
         .parse_module()
         .map_err(|e| {
             // Unrecoverable fatal error occurred
             e.into_diagnostic(&handler).emit()
         })
-        .expect("failed to parser module")
+        .expect("failed to parser module");
+
+    ParsedModule {
+        module,
+        source_file,
+    }
 }
 
 pub fn lint_file(path: &Path) {
     // parse file into AST
-    let module = parse_module_file(path);
+    let parsed_module = parse_module_file(path);
 
     // apply all rules
     for mut rule in get_all_rules() {
-        rule.lint_module(&module);
+        rule.lint_module(&parsed_module.module);
     }
 }
