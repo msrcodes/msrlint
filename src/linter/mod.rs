@@ -2,73 +2,45 @@ use std::path::Path;
 
 mod rules;
 
-use swc_common::{
-    self,
-    // errors::{ColorConfig, Handler},
-    input::SourceFileInput,
-    sync::Lrc,
-    SourceFile,
-    SourceMap,
-};
+use swc_common::{self, input::SourceFileInput, sync::Lrc, SourceMap};
 
-use swc_ecma_ast::Module;
+use swc_ecma_ast::{EsVersion, Program};
 use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 
 use rules::get_all_rules;
 
-pub struct ParsedModule {
-    pub module: Module,
-    pub source_file: Lrc<SourceFile>,
-}
+use self::rules::LintContext;
 
-fn parse_module_file(path: &Path) -> ParsedModule {
+pub fn lint_file(path: &Path) {
     let cm: Lrc<SourceMap> = Default::default();
     let source_file = cm.load_file(path).unwrap();
-    // let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
-
-    // let source_file = cm.load_file(path).expect("failed to load test.js");
+    let es_version: EsVersion = Default::default();
 
     let lexer = Lexer::new(
         // We want to parse ecmascript
         Syntax::Es(Default::default()),
         // EsVersion defaults to es5
-        Default::default(),
+        es_version,
         SourceFileInput::from(&*source_file),
         None,
     );
 
     let mut parser = Parser::new_from(lexer);
     let module = parser.parse_module().unwrap();
+    let program = Program::Module(module);
 
-    ParsedModule {
-        module,
-        source_file,
-    }
+    let context = LintContext {
+        program: &program,
+        es_version,
+        source_map: cm,
+    };
 
-    // for e in parser.take_errors() {
-    //     e.into_diagnostic(&handler).emit();
-    // }
-
-    // let module = parser
-    //     .parse_module()
-    //     .map_err(|e| {
-    //         // Unrecoverable fatal error occurred
-    //         e.into_diagnostic(&handler).emit()
-    //     })
-    //     .expect("failed to parser module");
-
-    // ParsedModule {
-    //     module,
-    //     source_file,
-    // }
-}
-
-pub fn lint_file(path: &Path) {
-    // parse file into AST
-    let parsed_module = parse_module_file(path);
+    let rules = get_all_rules(context);
 
     // apply all rules
-    for mut rule in get_all_rules() {
-        rule.lint_module(&parsed_module.module);
+    if let Program::Module(m) = program {
+        for mut rule in rules {
+            rule.lint_module(&m);
+        }
     }
 }

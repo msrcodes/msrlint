@@ -1,10 +1,11 @@
-use swc_ecma_ast::{Module, Script};
+use swc_common::SourceMap;
+use swc_ecma_ast::{EsVersion, Module, Program, Script};
 use swc_ecma_lints::rule::Rule;
 use swc_ecma_visit::{Visit, VisitWith};
 
 mod quotes;
 
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
 #[derive(Debug)]
 struct VisitorRule<V>(V)
@@ -31,6 +32,20 @@ where
     Box::new(VisitorRule(v))
 }
 
-pub fn get_all_rules() -> Vec<Box<dyn Rule>> {
-    vec![quotes::quotes()]
+pub struct LintContext<'a> {
+    pub program: &'a Program,
+    pub es_version: EsVersion,
+    pub source_map: Arc<SourceMap>,
+}
+
+pub fn get_all_rules(context: LintContext) -> Vec<Box<dyn Rule>> {
+    let LintContext {
+        program: _,
+        es_version: _,
+        source_map,
+    } = context;
+
+    let rules = vec![quotes::quotes(&source_map)];
+
+    rules
 }
