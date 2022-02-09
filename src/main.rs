@@ -5,7 +5,6 @@ use clap::Parser;
 use crate::{cli::Cli, files::get_all_files_to_lint, linter::lint_file};
 
 extern crate swc_common;
-extern crate swc_ecmascript;
 
 mod cli;
 mod files;

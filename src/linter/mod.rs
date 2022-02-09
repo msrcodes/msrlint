@@ -4,14 +4,15 @@ mod rules;
 
 use swc_common::{
     self,
-    errors::{ColorConfig, Handler},
+    // errors::{ColorConfig, Handler},
     input::SourceFileInput,
     sync::Lrc,
-    SourceFile, SourceMap,
+    SourceFile,
+    SourceMap,
 };
 
-use swc_ecmascript::parser::{lexer::Lexer, Parser};
-use swc_ecmascript::{ast::Module, parser::Syntax};
+use swc_ecma_ast::Module;
+use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 
 use rules::get_all_rules;
 
@@ -22,9 +23,10 @@ pub struct ParsedModule {
 
 fn parse_module_file(path: &Path) -> ParsedModule {
     let cm: Lrc<SourceMap> = Default::default();
-    let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
+    let source_file = cm.load_file(path).unwrap();
+    // let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
 
-    let source_file = cm.load_file(path).expect("failed to load test.js");
+    // let source_file = cm.load_file(path).expect("failed to load test.js");
 
     let lexer = Lexer::new(
         // We want to parse ecmascript
@@ -36,23 +38,29 @@ fn parse_module_file(path: &Path) -> ParsedModule {
     );
 
     let mut parser = Parser::new_from(lexer);
-
-    for e in parser.take_errors() {
-        e.into_diagnostic(&handler).emit();
-    }
-
-    let module = parser
-        .parse_module()
-        .map_err(|e| {
-            // Unrecoverable fatal error occurred
-            e.into_diagnostic(&handler).emit()
-        })
-        .expect("failed to parser module");
+    let module = parser.parse_module().unwrap();
 
     ParsedModule {
         module,
         source_file,
     }
+
+    // for e in parser.take_errors() {
+    //     e.into_diagnostic(&handler).emit();
+    // }
+
+    // let module = parser
+    //     .parse_module()
+    //     .map_err(|e| {
+    //         // Unrecoverable fatal error occurred
+    //         e.into_diagnostic(&handler).emit()
+    //     })
+    //     .expect("failed to parser module");
+
+    // ParsedModule {
+    //     module,
+    //     source_file,
+    // }
 }
 
 pub fn lint_file(path: &Path) {

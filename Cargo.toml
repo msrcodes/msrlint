@@ -6,9 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "3.0.4", features = ["derive"] }
-swc = "0.106.2"
-swc_common = { version = "0.16.0", features = ["tty-emitter"] }
-swc_ecma_lints = "0.4.1"
-swc_ecmascript = { version = "0.103.2", features = ["parser", "utils", "transforms", "visit"] }
+clap = {version = "3.0.4", features = ["derive"]}
+swc_atoms = {version = "0.2.9"}
+swc_common = {version = "0.17.0", features = ["concurrent"]}
+swc_ecma_ast = {version = "0.65.0"}
+swc_ecma_lints = {version = "0.14.2"}
+swc_ecma_parser = "0.88.3"
+swc_ecma_utils = {version = "0.65.0"}
+swc_ecma_visit = {version = "0.51.0"}
 walkdir = "2.3.2"

@@ -1,8 +1,9 @@
+// use swc_ecma_lints::rule::Rule;
+
+use swc_ecma_ast::{Expr, Module, Str};
+use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
+
 use swc_ecma_lints::rule::Rule;
-use swc_ecmascript::{
-    ast::{Expr, Module, Str},
-    visit::{noop_visit_type, Visit, VisitWith},
-};
 
 use super::visitor_rule;
 

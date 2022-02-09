@@ -1,8 +1,6 @@
+use swc_ecma_ast::{Module, Script};
 use swc_ecma_lints::rule::Rule;
-use swc_ecmascript::{
-    ast::{Module, Script},
-    visit::{Visit, VisitWith},
-};
+use swc_ecma_visit::{Visit, VisitWith};
 
 mod quotes;
 
