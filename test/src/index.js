@@ -2,6 +2,8 @@
 
 import people from './people.json'
 
+const foo = `this isn't allowed`
+
 /**
  * A documentation comment
  * @param {number} x 
