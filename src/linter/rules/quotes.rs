@@ -29,19 +29,52 @@ impl Debug for Quotes {
     }
 }
 
+#[derive(std::cmp::PartialEq, Debug)]
+enum QuotesType {
+    Single,
+    Double,
+    Backtick,
+}
+
+impl QuotesType {
+    pub fn from_bytes(bytes: u8) -> Option<QuotesType> {
+        match bytes {
+            b'\'' => Some(QuotesType::Single),
+            b'"' => Some(QuotesType::Double),
+            b'`' => Some(QuotesType::Backtick),
+            _ => None,
+        }
+    }
+}
+
 impl Visit for Quotes {
     noop_visit_type!();
 
     fn visit_str(&mut self, str: &Str) {
+        // Get quote type as bytes, for comparison later
         let quote = self.source_map.lookup_byte_offset(str.span.lo);
         let quote_index = quote.pos.0;
         let src = &quote.sf.src;
+        let bytes = src.as_bytes()[quote_index as usize];
 
-        let x = src.as_str().chars().nth(quote_index as usize);
-        println!("{}", x.unwrap());
+        // TODO: Get this from configuration
+        let expected_type = QuotesType::Double;
 
-        // does this have the correct type of quotes?
-        // foo()
+        // Output error if quotes type is not the same as expected
+        if let Some(quotes_type) = QuotesType::from_bytes(bytes) {
+            // If quotes type is as expected, ignore
+            if quotes_type == expected_type {
+                return;
+            }
+
+            // TODO: test for template literals - if it contains a variable, we allow it
+
+            // If quotes type is not as expected, output warning
+            println!(
+                "Unexpected quotes type in str \"{}\", found \"{:?}\", expected \"{:?}\"",
+                str.value, quotes_type, expected_type
+            )
+        }
 
         str.visit_children_with(self);
     }
