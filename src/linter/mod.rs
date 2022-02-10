@@ -18,7 +18,8 @@ use swc_ecma_utils::HANDLER;
 
 use self::rules::LintContext;
 
-pub fn lint_file(path: &Path) {
+/// Lint file, returning the number of errors found
+pub fn lint_file(path: &Path) -> usize {
     let cm: Lrc<SourceMap> = Default::default();
     let source_file = cm.load_file(path).unwrap();
     let es_version: EsVersion = Default::default();
@@ -46,6 +47,8 @@ pub fn lint_file(path: &Path) {
 
     let rules = get_all_rules(context);
 
+    let mut num_errors = 0;
+
     HANDLER.set(&handler, || {
         // apply all rules
         if let Program::Module(m) = program {
@@ -53,5 +56,9 @@ pub fn lint_file(path: &Path) {
                 rule.lint_module(&m);
             }
         }
-    })
+
+        num_errors += handler.err_count()
+    });
+
+    num_errors
 }
