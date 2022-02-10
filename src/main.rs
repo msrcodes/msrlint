@@ -18,7 +18,6 @@ fn main() {
     let input = get_all_files_to_lint(cli.files);
 
     for file in input {
-        println!("\n\nLinting {:?}", file.as_path());
         lint_file(file.as_path());
     }
 

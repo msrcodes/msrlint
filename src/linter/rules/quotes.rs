@@ -1,6 +1,6 @@
 use std::{fmt::Debug, sync::Arc};
 
-use swc_common::SourceMap;
+use swc_common::{errors::HANDLER, SourceMap, Span};
 use swc_ecma_ast::{Expr, Lit, Str, Tpl};
 use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
 
@@ -45,6 +45,21 @@ impl Quotes {
         QuotesType::Double
     }
 
+    fn emit_error(&self, span: Span) {
+        HANDLER.with(|handler| {
+            handler
+                .struct_span_err(
+                    span,
+                    format!(
+                        "Incorrect quotes type. Expected {:?}.",
+                        self.get_preferred_type()
+                    )
+                    .as_str(),
+                )
+                .emit();
+        });
+    }
+
     // Implementation for 'normal' strings - single and double quotes
     fn check_str(&self, str: &Str) {
         // Get quote type as bytes, for comparison later
@@ -64,10 +79,7 @@ impl Quotes {
             }
 
             // If quotes type is not as expected, output warning
-            println!(
-                "Unexpected quotes type in str \"{}\", found \"{:?}\", expected \"{:?}\"",
-                str.value, quotes_type, expected_type
-            )
+            self.emit_error(str.span)
         }
     }
 
@@ -84,12 +96,7 @@ impl Quotes {
         }
 
         // Else, output error
-        println!(
-            "Unexpected quotes type in str \"{:?}\", found \"{:?}\", expected \"{:?}\"",
-            tpl,
-            QuotesType::Backtick,
-            self.get_preferred_type()
-        )
+        self.emit_error(tpl.span)
     }
 }
 
