@@ -1,5 +1,7 @@
 'use strict';
 
+const ID = "TEST STR";
+
 /**
  * A documentation comment
  * @param {number} x 
