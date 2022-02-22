@@ -11,8 +11,11 @@ use swc_common::SourceMap;
 use swc_ecma_ast::{EsVersion, Program};
 use swc_ecma_lints::rule::Rule;
 
+use super::config::LintConfig;
+
 pub struct LintContext<'a> {
     pub program: &'a Program,
+    pub lint_config: &'a LintConfig,
     pub es_version: EsVersion,
     pub source_map: Arc<SourceMap>,
 }
@@ -20,6 +23,7 @@ pub struct LintContext<'a> {
 pub fn get_all_rules(context: LintContext) -> Vec<Box<dyn Rule>> {
     let LintContext {
         program: _,
+        lint_config: _,
         es_version: _,
         source_map,
     } = context;
