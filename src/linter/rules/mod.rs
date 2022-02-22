@@ -23,12 +23,12 @@ pub struct LintContext<'a> {
 pub fn get_all_rules(context: LintContext) -> Vec<Box<dyn Rule>> {
     let LintContext {
         program: _,
-        lint_config: _,
+        lint_config,
         es_version: _,
         source_map,
     } = context;
 
-    let rules = vec![quotes::quotes(&source_map)];
+    let rules = vec![quotes::quotes(&source_map, &lint_config.quotes)];
 
     rules
 }

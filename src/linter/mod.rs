@@ -43,7 +43,7 @@ pub fn lint_file(path: &Path, lint_config: &LintConfig) -> usize {
 
     let context = LintContext {
         program: &program,
-        lint_config: &lint_config,
+        lint_config,
         es_version,
         source_map: cm,
     };
