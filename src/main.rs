@@ -20,7 +20,7 @@ fn main() {
 
     let mut num_errors = 0;
 
-    for file in input {
+    for file in input.files {
         num_errors += lint_file(file.as_path());
     }
 
