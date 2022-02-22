@@ -1,5 +1,6 @@
 use std::path::Path;
 
+mod rule;
 mod rules;
 
 use swc_common::{

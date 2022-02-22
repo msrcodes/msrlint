@@ -6,7 +6,7 @@ use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
 
 use swc_ecma_lints::rule::Rule;
 
-use super::visitor_rule;
+use crate::linter::rule::visitor_rule;
 
 pub fn quotes(source_map: &Arc<SourceMap>) -> Box<dyn Rule> {
     visitor_rule(Quotes::new(source_map.clone()))
