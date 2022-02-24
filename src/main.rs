@@ -22,7 +22,7 @@ fn main() {
 
     let input = get_all_files_to_lint(cli.files);
 
-    let lint_config = LintConfig::default();
+    let lint_config = LintConfig::from(input.config);
 
     let mut num_errors = 0;
 
