@@ -6,6 +6,9 @@ use std::{collections::HashMap, fmt::Debug, fs::read_to_string, path::PathBuf};
 
 #[derive(Default, Clone)]
 pub struct LintConfig {
+    /// Values from the "extends" property of configuration
+    pub rules: Vec<String>,
+    // Config for quotes rule
     pub quotes: RuleConfig<QuotesConfig>,
 }
 
@@ -65,6 +68,8 @@ impl From<PathBuf> for LintConfig {
             return LintConfig::default();
         }
 
+        let all_rules = String::from("eslint:all");
+
         // Get file extension
         let valid_extensions = ["json", "js", "cjs", "yml", "yaml"];
         let ext = buf.extension().unwrap().to_str().unwrap();
@@ -83,13 +88,19 @@ impl From<PathBuf> for LintConfig {
         } else if ext == "json" {
             let file = read_to_string(buf).unwrap();
             let json: RawConfigFile = serde_json::from_str(file.as_str()).unwrap();
-            println!("{:?}", json);
+
+            if json.extends.contains(&all_rules) {
+                LintConfig {
+                    rules: [all_rules].to_vec(),
+                    ..Default::default()
+                }
+            } else {
+                LintConfig::default()
+            }
         } else {
             // TODO: parse other file types
             todo!()
         }
-
-        LintConfig::default()
     }
 }
 

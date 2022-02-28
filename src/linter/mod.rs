@@ -50,6 +50,10 @@ pub fn lint_file(path: &Path, lint_config: &LintConfig) -> usize {
 
     let rules = get_all_rules(context);
 
+    if rules.is_empty() {
+        panic!("No rules are enabled. Consider adding 'eslint:all' to the 'extends' property of your .eslintrc.* file.")
+    }
+
     let mut num_errors = 0;
 
     HANDLER.set(&handler, || {
