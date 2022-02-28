@@ -1,13 +1,61 @@
 use serde::{Deserialize, Serialize};
-use swc_common::{input::SourceFileInput, sync::Lrc, SourceMap};
-use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
+use serde_json::Value;
 
 use super::rules::lints::quotes::QuotesConfig;
-use std::{fmt::Debug, path::PathBuf};
+use std::{collections::HashMap, fmt::Debug, fs::read_to_string, path::PathBuf};
 
 #[derive(Default, Clone)]
 pub struct LintConfig {
     pub quotes: RuleConfig<QuotesConfig>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+enum Rules {
+    /// ESLint rule
+    /// * 0 - turns the rule off
+    /// * 1 - turn the rule on as a warning (doesn't affect exit code)
+    /// * 2 - turn the rule on as an error (exit code is 1 when triggered)
+    IntegerEnabled(u8),
+    /// ESLint rule
+    /// * "off" - turns the rule off
+    /// * "warn" - turn the rule on as a warning (doesn't affect exit code)
+    /// * "error" - turn the rule on as an error (exit code is 1 when triggered)
+    StringEnabled(String),
+    /// ESLint rule
+    /// * "off" - turns the rule off
+    /// * "warn" - turn the rule on as a warning (doesn't affect exit code)
+    /// * "error" - turn the rule on as an error (exit code is 1 when triggered)
+    ///
+    /// The second property in the pair configures the rule, e.g., ["error", "single"] for quotes rule
+    StringEnabledString(String, String),
+    /// ESLint rule
+    /// * 0 - turns the rule off
+    /// * 1 - turn the rule on as a warning (doesn't affect exit code)
+    /// * 2 - turn the rule on as an error (exit code is 1 when triggered)
+    ///
+    /// The second property in the pair configures the rule, e.g., [2, "single"] for quotes rule
+    NumberEnabledString(u8, String),
+    /// ESLint rule
+    /// * "off" - turns the rule off
+    /// * "warn" - turn the rule on as a warning (doesn't affect exit code)
+    /// * "error" - turn the rule on as an error (exit code is 1 when triggered)
+    ///
+    /// The second property in the pair configures the rule, e.g., ["error", {prefer: "single"}] for quotes rule
+    StringEnabledObject(String, HashMap<String, Value>),
+    /// ESLint rule
+    /// * 0 - turns the rule off
+    /// * 1 - turn the rule on as a warning (doesn't affect exit code)
+    /// * 2 - turn the rule on as an error (exit code is 1 when triggered)
+    ///
+    /// The second property in the pair configures the rule, e.g., [2, {prefer: "single"}] for quotes rule
+    NumberEnabledObject(u8, HashMap<String, Value>),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct RawConfigFile {
+    extends: Vec<String>,
+    rules: HashMap<String, Rules>,
 }
 
 impl From<PathBuf> for LintConfig {
@@ -29,31 +77,13 @@ impl From<PathBuf> for LintConfig {
             )
         }
 
-        // Parse .eslintrc.js files
+        // Parse .eslintrc.js files as priority
         if ext == "js" {
-            let cm: Lrc<SourceMap> = Default::default();
-            let source_file = cm.load_file(buf.as_path()).unwrap();
-
-            let lexer = Lexer::new(
-                // We want to parse ecmascript
-                Syntax::Es(Default::default()),
-                // EsVersion defaults to es5
-                Default::default(),
-                SourceFileInput::from(&*source_file),
-                None,
-            );
-
-            let mut parser = Parser::new_from(lexer);
-            let module = parser.parse_module().unwrap();
-
-            // TODO: fix this hacky mess
-            let src = &cm.lookup_byte_offset(module.span.lo).sf.src;
-            let split = src.as_str().split("module.exports");
-
-            if split.count() <= 1 {
-                panic!("No module.exports detected")
-            } else {
-            }
+            todo!()
+        } else if ext == "json" {
+            let file = read_to_string(buf).unwrap();
+            let json: RawConfigFile = serde_json::from_str(file.as_str()).unwrap();
+            println!("{:?}", json);
         } else {
             // TODO: parse other file types
             todo!()
