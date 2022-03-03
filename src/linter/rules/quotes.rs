@@ -10,7 +10,7 @@ use swc_ecma_lints::rule::Rule;
 
 use crate::linter::{config::RuleConfig, rule::visitor_rule};
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct QuotesConfig {
     #[serde(default)]
     prefer: QuotesType,

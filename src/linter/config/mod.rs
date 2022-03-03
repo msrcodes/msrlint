@@ -4,7 +4,7 @@ use serde_json::Value;
 use super::rules::lints::quotes::QuotesConfig;
 use std::{collections::HashMap, fmt::Debug, fs::read_to_string, path::PathBuf};
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, PartialEq, Debug)]
 pub struct LintConfig {
     /// Values from the "extends" property of configuration
     pub rules: Vec<String>,
@@ -152,7 +152,7 @@ impl From<PathBuf> for LintConfig {
 
 // Adapted from
 // https://github.com/swc-project/swc/blob/e9c1b229262c07d114e4b75bbc9f104b45fbedf3/crates/swc_ecma_lints/src/config.rs#L53-L67
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct RuleConfig<T: Debug + Clone + Serialize + Default>(#[serde(default)] T);
 
 impl<T: Debug + Clone + Serialize + Default> RuleConfig<T> {
@@ -205,5 +205,75 @@ mod tests {
     #[test]
     fn is_error_enabled() {
         assert_eq!(is_string_disabled(String::from("key"), "error"), None)
+    }
+
+    #[test]
+    fn create_config_no_path() {
+        let config = LintConfig::from(PathBuf::default());
+        assert_eq!(config, LintConfig::default())
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_config_invalid_extension() {
+        let _config = LintConfig::from(PathBuf::from("aconfig.thisisnotagoodextension"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_config_js() {
+        let _config = LintConfig::from(PathBuf::from("aconfig.js"));
+    }
+
+    #[test]
+    fn create_config_json() {
+        let config = LintConfig::from(PathBuf::from("./test/.eslintrc.json"));
+        let expected = LintConfig {
+            rules: Vec::from([String::from("eslint:all")]),
+            disabled_rules: Vec::from([
+                String::from("object-curly-newline"),
+                String::from("linebreak-style"),
+                String::from("implicit-arrow-linebreak"),
+                String::from("no-tabs"),
+            ]),
+            ..Default::default()
+        };
+        assert_eq!(config.rules.len(), expected.rules.len());
+        assert_eq!(config.disabled_rules.len(), expected.disabled_rules.len());
+    }
+
+    #[test]
+    fn create_config_json_no_eslint_all() {
+        let config = LintConfig::from(PathBuf::from("./test/.confignoall.json"));
+        let expected = LintConfig {
+            rules: Vec::from([]),
+            disabled_rules: Vec::from([
+                String::from("object-curly-newline"),
+                String::from("linebreak-style"),
+                String::from("implicit-arrow-linebreak"),
+                String::from("no-tabs"),
+            ]),
+            ..Default::default()
+        };
+        assert_eq!(config.rules.len(), expected.rules.len());
+        assert_eq!(config.disabled_rules.len(), expected.disabled_rules.len());
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_config_cjs() {
+        let _config = LintConfig::from(PathBuf::from("aconfig.cjs"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_config_yml() {
+        let _config = LintConfig::from(PathBuf::from("aconfig.yml"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_config_yaml() {
+        let _config = LintConfig::from(PathBuf::from("aconfig.yaml"));
     }
 }
