@@ -1,22 +1,36 @@
 use std::{fmt::Debug, sync::Arc};
 
+use serde::{Deserialize, Serialize};
+
 use swc_common::{errors::HANDLER, SourceMap, Span};
 use swc_ecma_ast::{Expr, Lit, Str, Tpl};
 use swc_ecma_visit::{noop_visit_type, Visit, VisitWith};
 
 use swc_ecma_lints::rule::Rule;
 
-use super::visitor_rule;
+use crate::linter::{config::RuleConfig, rule::visitor_rule};
 
-pub fn quotes(source_map: &Arc<SourceMap>) -> Box<dyn Rule> {
-    visitor_rule(Quotes::new(source_map.clone()))
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+pub struct QuotesConfig {
+    #[serde(default)]
+    prefer: QuotesType,
 }
 
-#[derive(std::cmp::PartialEq, Debug)]
+pub fn quotes(source_map: &Arc<SourceMap>, config: &RuleConfig<QuotesConfig>) -> Box<dyn Rule> {
+    visitor_rule(Quotes::new(source_map.clone(), config))
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, std::cmp::PartialEq)]
 enum QuotesType {
     Single,
     Double,
     Backtick,
+}
+
+impl Default for QuotesType {
+    fn default() -> Self {
+        Self::Double
+    }
 }
 
 impl QuotesType {
@@ -33,16 +47,21 @@ impl QuotesType {
 #[derive(Default)]
 struct Quotes {
     source_map: Arc<SourceMap>,
+    prefer: QuotesType,
 }
 
 impl Quotes {
-    fn new(source_map: Arc<SourceMap>) -> Self {
-        Self { source_map }
+    fn new(source_map: Arc<SourceMap>, config: &RuleConfig<QuotesConfig>) -> Self {
+        let quotes_config = config.get_rule_config();
+        Self {
+            source_map,
+            prefer: quotes_config.prefer,
+        }
     }
 
     // TODO: Get this from configuration
     fn get_preferred_type(&self) -> QuotesType {
-        QuotesType::Double
+        self.prefer
     }
 
     fn emit_error(&self, span: Span) {

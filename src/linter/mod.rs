@@ -1,5 +1,7 @@
 use std::path::Path;
 
+pub mod config;
+mod rule;
 mod rules;
 
 use swc_common::{
@@ -16,10 +18,10 @@ use swc_ecma_parser::{lexer::Lexer, Parser, Syntax};
 use rules::get_all_rules;
 use swc_ecma_utils::HANDLER;
 
-use self::rules::LintContext;
+use self::{config::LintConfig, rules::LintContext};
 
 /// Lint file, returning the number of errors found
-pub fn lint_file(path: &Path) -> usize {
+pub fn lint_file(path: &Path, lint_config: &LintConfig) -> usize {
     let cm: Lrc<SourceMap> = Default::default();
     let source_file = cm.load_file(path).unwrap();
     let es_version: EsVersion = Default::default();
@@ -41,11 +43,16 @@ pub fn lint_file(path: &Path) -> usize {
 
     let context = LintContext {
         program: &program,
+        lint_config,
         es_version,
         source_map: cm,
     };
 
     let rules = get_all_rules(context);
+
+    if rules.is_empty() {
+        panic!("No rules are enabled. Consider adding 'eslint:all' to the 'extends' property of your .eslintrc.* file.")
+    }
 
     let mut num_errors = 0;
 

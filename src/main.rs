@@ -2,7 +2,11 @@ use std::time::Instant;
 
 use clap::Parser;
 
-use crate::{cli::Cli, files::get_all_files_to_lint, linter::lint_file};
+use crate::{
+    cli::Cli,
+    files::get_all_files_to_lint,
+    linter::{config::LintConfig, lint_file},
+};
 
 extern crate swc_common;
 use colored::*;
@@ -18,10 +22,12 @@ fn main() {
 
     let input = get_all_files_to_lint(cli.files);
 
+    let lint_config = LintConfig::from(input.config);
+
     let mut num_errors = 0;
 
     for file in input.files {
-        num_errors += lint_file(file.as_path());
+        num_errors += lint_file(file.as_path(), &lint_config);
     }
 
     if num_errors > 0 {
