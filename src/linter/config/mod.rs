@@ -64,7 +64,10 @@ struct RawConfigFile {
     rules: HashMap<String, Rules>,
 }
 
-fn is_num_enabled(key: String, num: &u8) -> Option<String> {
+/// Check if config values indicates that the provided key should be enabled
+/// Returns Some(key) if the option is disabled
+/// Return None if the option is enabled
+fn is_num_disabled(key: String, num: &u8) -> Option<String> {
     if *num == 0 {
         Some(key)
     } else {
@@ -72,7 +75,10 @@ fn is_num_enabled(key: String, num: &u8) -> Option<String> {
     }
 }
 
-fn is_string_enabled(key: String, str: &str) -> Option<String> {
+/// Check if config values indicates that the provided key should be enabled
+/// Returns Some(key) if the option is disabled
+/// Return None if the option is enabled
+fn is_string_disabled(key: String, str: &str) -> Option<String> {
     if str == "off" {
         Some(key)
     } else {
@@ -114,12 +120,12 @@ impl From<PathBuf> for LintConfig {
                 .rules
                 .iter()
                 .filter_map(|(key, value)| match value {
-                    Rules::NumberEnabled(num) => is_num_enabled(key.to_string(), num),
-                    Rules::NumberEnabledString(num, _) => is_num_enabled(key.to_string(), num),
-                    Rules::NumberEnabledObject(num, _) => is_num_enabled(key.to_string(), num),
-                    Rules::StringEnabledObject(str, _) => is_string_enabled(key.to_string(), str),
-                    Rules::StringEnabled(str) => is_string_enabled(key.to_string(), str),
-                    Rules::StringEnabledString(str, _) => is_string_enabled(key.to_string(), str),
+                    Rules::NumberEnabled(num) => is_num_disabled(key.to_string(), num),
+                    Rules::NumberEnabledString(num, _) => is_num_disabled(key.to_string(), num),
+                    Rules::NumberEnabledObject(num, _) => is_num_disabled(key.to_string(), num),
+                    Rules::StringEnabledObject(str, _) => is_string_disabled(key.to_string(), str),
+                    Rules::StringEnabled(str) => is_string_disabled(key.to_string(), str),
+                    Rules::StringEnabledString(str, _) => is_string_disabled(key.to_string(), str),
                 })
                 .collect();
 
@@ -155,3 +161,49 @@ impl<T: Debug + Clone + Serialize + Default> RuleConfig<T> {
     }
 }
 // end
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_zero_enabled() {
+        assert_eq!(
+            is_num_disabled(String::from("key"), &0),
+            Some(String::from("key"))
+        );
+    }
+
+    #[test]
+    fn is_one_enabled() {
+        assert_eq!(is_num_disabled(String::from("key"), &1), None);
+    }
+
+    #[test]
+    fn is_two_enabled() {
+        assert_eq!(is_num_disabled(String::from("key"), &2), None);
+    }
+
+    #[test]
+    fn is_three_enabled() {
+        assert_eq!(is_num_disabled(String::from("key"), &3), None);
+    }
+
+    #[test]
+    fn is_off_enabled() {
+        assert_eq!(
+            is_string_disabled(String::from("key"), "off"),
+            Some(String::from("key"))
+        )
+    }
+
+    #[test]
+    fn is_warn_enabled() {
+        assert_eq!(is_string_disabled(String::from("key"), "warn"), None)
+    }
+
+    #[test]
+    fn is_error_enabled() {
+        assert_eq!(is_string_disabled(String::from("key"), "error"), None)
+    }
+}
