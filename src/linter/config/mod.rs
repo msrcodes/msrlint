@@ -113,7 +113,7 @@ impl From<PathBuf> for LintConfig {
             let disabled_rules: Vec<String> = json
                 .rules
                 .iter()
-                .map(|(key, value)| match value {
+                .filter_map(|(key, value)| match value {
                     Rules::NumberEnabled(num) => is_num_enabled(key.to_string(), num),
                     Rules::NumberEnabledString(num, _) => is_num_enabled(key.to_string(), num),
                     Rules::NumberEnabledObject(num, _) => is_num_enabled(key.to_string(), num),
@@ -121,7 +121,6 @@ impl From<PathBuf> for LintConfig {
                     Rules::StringEnabled(str) => is_string_enabled(key.to_string(), str),
                     Rules::StringEnabledString(str, _) => is_string_enabled(key.to_string(), str),
                 })
-                .flatten()
                 .collect();
 
             // If the eslint:all property is extended from, use all rules apart from those in disabled_rules
