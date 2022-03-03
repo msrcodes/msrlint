@@ -3,7 +3,7 @@ pub(crate) mod lints {
     pub mod quotes;
 }
 
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use lints::*;
 
@@ -20,7 +20,7 @@ pub struct LintContext<'a> {
     pub source_map: Arc<SourceMap>,
 }
 
-pub fn get_all_rules(context: LintContext) -> Vec<Box<dyn Rule>> {
+fn get_all_rules_raw<'a>(context: &'a LintContext) -> HashMap<&'a str, Box<dyn Rule>> {
     let LintContext {
         program: _,
         lint_config,
@@ -28,13 +28,30 @@ pub fn get_all_rules(context: LintContext) -> Vec<Box<dyn Rule>> {
         source_map,
     } = context;
 
-    // TODO: use rules from other extends, not just "all"
-    if !lint_config.rules.contains(&String::from("eslint:all")) {
-        return vec![];
+    let mut rule_map = HashMap::new();
+    rule_map.insert("quotes", quotes::quotes(source_map, &lint_config.quotes));
+
+    rule_map
+}
+
+pub fn get_all_rules(context: LintContext) -> Vec<Box<dyn Rule>> {
+    let mut rules = get_all_rules_raw(&context);
+
+    let LintContext {
+        program: _,
+        lint_config,
+        es_version: _,
+        source_map: _,
+    } = context;
+
+    if lint_config.rules.contains(&String::from("eslint:all")) {
+        // If assuming eslint:all, start with all rules and disable the rules specified
+        for rule in &lint_config.disabled_rules {
+            rules.remove(rule.as_str());
+        }
+
+        rules.into_values().collect()
+    } else {
+        todo!()
     }
-
-    // Initiate rules, providing necessary context properties
-    let rules = vec![quotes::quotes(&source_map, &lint_config.quotes)];
-
-    rules
 }
