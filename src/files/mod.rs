@@ -106,7 +106,6 @@ mod tests {
             PathBuf::from("./test/src/index.js"),
             PathBuf::from("./test/src/myTestDir/anotherTestDir/hidden.js"),
             PathBuf::from("./test/src/myTestDir/another.js"),
-            PathBuf::from("./test/.eslintrc.js"),
         ]
         .into_iter()
         .collect();
