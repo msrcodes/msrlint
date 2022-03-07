@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::rules::lints::quotes::QuotesConfig;
+use super::rules::lints::{quotes::QuotesConfig, semi::SemiConfig};
 use std::{collections::HashMap, fmt::Debug, fs::read_to_string, path::PathBuf};
 
 #[derive(Default, Clone, PartialEq, Debug)]
@@ -9,8 +9,9 @@ pub struct LintConfig {
     /// Values from the "extends" property of configuration
     pub rules: Vec<String>,
     pub disabled_rules: Vec<String>,
-    // Config for quotes rule
+    // Config for linting rules
     pub quotes: RuleConfig<QuotesConfig>,
+    pub semi: RuleConfig<SemiConfig>,
 }
 
 // TODO impl default manually
