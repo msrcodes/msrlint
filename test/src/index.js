@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 import people from './people.json'
 
