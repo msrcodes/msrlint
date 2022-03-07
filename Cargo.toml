@@ -2,8 +2,14 @@
 name = "msrlint"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license-file = "LICENSE"
+description = "A WIP replacement for ESLint."
+repository = "https://github.com/mikaelsrozee/msrlint"
+readme = "README.md"
+keywords = ["lint", "linter", "javascript", "ecmascript", "cli"]
+categories = ["command-line-utilities", "command-line-interface", "development-tools", "web-programming"]
+exclude = ["/.github", "/test", ".*"]
+publish = false
 
 [dependencies]
 clap = {version = "3.0.4", features = ["derive"]}
