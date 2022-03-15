@@ -16,7 +16,11 @@ function add(x, y) {
 
 // A comment
 function sayHi(person) {
-    console.log(`Hello ${person.name}`)
+    if (person.name == "Santa Claus") {
+        console.log("Ho Ho Ho!")
+    } else {
+        console.log(`Hello ${person.name}`)
+    }
 }
 
 sayHi(people[0])
