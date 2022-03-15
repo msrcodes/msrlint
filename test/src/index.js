@@ -21,6 +21,8 @@ function sayHi(person) {
     } else {
         console.log(`Hello ${person.name}`)
     }
+
+    eval("console.log(2)")
 }
 
 sayHi(people[0])
