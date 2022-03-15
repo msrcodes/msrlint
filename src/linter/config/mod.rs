@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::rules::lints::{quotes::QuotesConfig, semi::SemiConfig};
+use super::rules::lints::{indent::IndentConfig, quotes::QuotesConfig, semi::SemiConfig};
 use std::{collections::HashMap, fmt::Debug, fs::read_to_string, path::PathBuf};
 
 #[derive(Default, Clone, PartialEq, Debug)]
@@ -12,6 +12,7 @@ pub struct LintConfig {
     // Config for linting rules
     pub quotes: RuleConfig<QuotesConfig>,
     pub semi: RuleConfig<SemiConfig>,
+    pub indent: RuleConfig<IndentConfig>,
 }
 
 // TODO impl default manually

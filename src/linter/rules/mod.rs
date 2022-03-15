@@ -1,5 +1,6 @@
 #[path = ""]
 pub(crate) mod lints {
+    pub mod indent;
     pub mod quotes;
     pub mod semi;
 }
@@ -32,6 +33,7 @@ fn get_all_rules_raw<'a>(context: &'a LintContext) -> HashMap<&'a str, Box<dyn R
     let mut rule_map = HashMap::new();
     rule_map.insert("quotes", quotes::quotes(source_map, &lint_config.quotes));
     rule_map.insert("semi", semi::semi(source_map, &lint_config.semi));
+    rule_map.insert("ident", indent::indent(source_map, &lint_config.indent));
 
     rule_map
 }
