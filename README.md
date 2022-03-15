@@ -4,6 +4,8 @@ My Speedy Rust Linter. A (WIP) Rust-based replacement to ESLint.
 Currently supported rules:
 - Quotes
 - Semi
+- Eqeqeq
+- NoEval
 
 Currently supported config files:
 - .eslintrc.json

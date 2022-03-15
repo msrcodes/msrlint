@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::rules::lints::{eqeqeq::EqeqeqConfig, quotes::QuotesConfig, semi::SemiConfig};
+use super::rules::lints::{
+    eqeqeq::EqeqeqConfig, no_eval::NoEvalConfig, quotes::QuotesConfig, semi::SemiConfig,
+};
 use std::{collections::HashMap, fmt::Debug, fs::read_to_string, path::PathBuf};
 
 #[derive(Default, Clone, PartialEq, Debug)]
@@ -13,6 +15,7 @@ pub struct LintConfig {
     pub quotes: RuleConfig<QuotesConfig>,
     pub semi: RuleConfig<SemiConfig>,
     pub eqeqeq: RuleConfig<EqeqeqConfig>,
+    pub noeval: RuleConfig<NoEvalConfig>,
 }
 
 // TODO impl default manually
