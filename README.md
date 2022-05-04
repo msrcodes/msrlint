@@ -14,7 +14,7 @@ Currently supported config files:
 ## 📦 Installation
 
 ```
-TODO
+TODO, once this repository is public
 ```
 
 ## 🛠 Usage
